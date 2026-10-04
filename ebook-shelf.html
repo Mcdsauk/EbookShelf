@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Course Shelf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --wall:#E3E7E0; --wall-2:#D6DCD3; --paper:#F7F8F5; --ink:#1D2320; --ink-2:#4C5550; --ink-3:#7A847E;
+  --line:#C3CBC0; --plank:#5B3A26; --plank-top:#7C5337; --plank-shadow:rgba(40,25,15,.35);
+  --accent:#2F4C9A; --accent-ink:#fff; --danger:#9B2C2C; --gold:#E2B33C;
+  --t-notes:#2F4C9A; --t-textbook:#7E2A33; --t-outline:#B5821C; --t-paper:#2A6F68; --t-assignment:#5E3B6E; --t-other:#4A5058;
+  --serif:"Spectral",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --cond:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --wall:#1A1F1C; --wall-2:#232925; --paper:#222824; --ink:#E7EBE5; --ink-2:#B4BDB6; --ink-3:#86908A;
+    --line:#38413B; --plank:#3D2618; --plank-top:#5A3A25; --plank-shadow:rgba(0,0,0,.6);
+    --accent:#7F9BE6; --accent-ink:#10172B; --danger:#E07A7A;
+    --t-notes:#3B5BB0; --t-textbook:#94343F; --t-outline:#B98A26; --t-paper:#2F7E76; --t-assignment:#6E4882; --t-other:#5A616A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --wall:#1A1F1C; --wall-2:#232925; --paper:#222824; --ink:#E7EBE5; --ink-2:#B4BDB6; --ink-3:#86908A;
+  --line:#38413B; --plank:#3D2618; --plank-top:#5A3A25; --plank-shadow:rgba(0,0,0,.6);
+  --accent:#7F9BE6; --accent-ink:#10172B; --danger:#E07A7A;
+  --t-notes:#3B5BB0; --t-textbook:#94343F; --t-outline:#B98A26; --t-paper:#2F7E76; --t-assignment:#6E4882; --t-other:#5A616A;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--wall);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;min-height:100%;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+img,video,iframe{max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* top */
+.top{max-width:1180px;margin:0 auto;padding:28px 24px 8px;display:grid;grid-template-columns:1fr auto;gap:16px 24px;align-items:end}
+.brand{display:flex;gap:16px;align-items:center;min-width:0}
+.avatar{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);background:var(--paper);overflow:hidden;cursor:pointer;flex:0 0 auto;padding:0;display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:24px;color:var(--ink-2)}
+.avatar:hover{border-color:var(--ink-3)}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.pf-pic{display:flex;gap:16px;align-items:center}
+.pf-pic .avatar{width:96px;height:96px;font-size:34px;cursor:default}
+.pf-pic .btns{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.extract{font-size:13.5px;color:var(--ink-2);margin:-4px 0 0;display:flex;gap:8px;align-items:center}
+.extract:empty{display:none}
+.extract.busy::before{content:"";width:12px;height:12px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.brand h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,5vw,44px);line-height:1.05;margin:0;letter-spacing:-.01em}
+.brand p{margin:6px 0 0;color:var(--ink-2);font-size:14px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tools{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.search{flex:1 1 280px;position:relative}
+.search input{width:100%;padding:11px 14px 11px 40px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper)}
+.seg button{border:0;background:none;padding:9px 14px;cursor:pointer;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--wall)}
+select.sort{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.btn{border:1px solid var(--line);background:var(--paper);padding:9px 15px;border-radius:10px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:var(--ink);white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--danger)}
+.btn.small{padding:6px 11px;font-size:13.5px}
+.btn:disabled{opacity:.55;cursor:default}
+.chips{max-width:1180px;margin:0 auto;padding:6px 24px 4px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px 5px 10px;cursor:pointer;font-size:13.5px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;color:var(--ink-2)}
+.chip i{width:9px;height:14px;border-radius:2px;display:inline-block}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--wall);border-color:var(--ink)}
+
+/* recent */
+.recent{max-width:1180px;margin:0 auto;padding:14px 24px 0}
+.recent h2,.section-label{font-size:13px;font-weight:600;color:var(--ink-3);margin:0 0 8px}
+.recent-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.recent-card{flex:0 0 auto;max-width:240px;display:flex;gap:10px;align-items:center;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:8px 12px 8px 8px;cursor:pointer;text-align:left}
+.recent-card i{width:8px;align-self:stretch;border-radius:2px;min-height:34px}
+.recent-card b{display:block;font-weight:500;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+.recent-card small{color:var(--ink-3);font-size:12.5px}
+
+/* shelves */
+main{max-width:1180px;margin:0 auto;padding:10px 24px 60px}
+.status{color:var(--ink-2);font-size:14px;margin:10px 0 0;min-height:1.2em}
+.shelf{margin-top:34px}
+.shelf-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:0 4px 10px}
+.shelf-head h2{margin:0;font-family:var(--serif);font-weight:600;font-size:24px;line-height:1.15}
+.shelf-head h2 span{font-weight:500;font-style:italic;color:var(--ink-2);font-size:20px;margin-left:8px}
+.shelf-head p{margin:2px 0 0;color:var(--ink-3);font-size:13.5px}
+.shelf-head .acts{display:flex;gap:6px}
+.case{background:linear-gradient(var(--wall-2),var(--wall));border-radius:6px 6px 0 0;position:relative}
+.row{display:flex;align-items:flex-end;gap:3px;overflow-x:auto;overflow-y:hidden;padding:26px 18px 0;min-height:250px;scrollbar-width:thin}
+.row.drop{outline:2px dashed var(--accent);outline-offset:-6px}
+.plank{height:16px;background:linear-gradient(var(--plank-top) 0 3px,var(--plank) 3px);border-radius:0 0 3px 3px;box-shadow:0 10px 14px -8px var(--plank-shadow)}
+.empty-row{align-self:center;color:var(--ink-3);font-size:14px;padding:0 14px;max-width:320px}
+
+.spine{--c:var(--t-other);flex:0 0 auto;width:var(--w,44px);height:var(--h,170px);border:0;padding:0;cursor:pointer;position:relative;color:#fff;
+  background:
+   linear-gradient(90deg,rgba(255,255,255,.10),rgba(255,255,255,0) 30%,rgba(0,0,0,0) 70%,rgba(0,0,0,.18)),
+   linear-gradient(transparent 14px,rgba(255,255,255,.28) 14px 16px,transparent 16px 20px,rgba(255,255,255,.28) 20px 21px,transparent 21px calc(100% - 24px),rgba(255,255,255,.28) calc(100% - 24px) calc(100% - 22px),transparent calc(100% - 22px)),
+   var(--c);
+  border-radius:3px 3px 1px 1px;transition:transform .18s ease,opacity .18s ease;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+.spine:hover,.spine:focus-visible{transform:translateY(-8px)}
+.spine .t{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--cond);font-weight:500;font-size:13px;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:calc(var(--h,170px) - 56px);margin-top:28px;line-height:1.1}
+.spine .k{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-family:var(--cond);font-size:10px;font-weight:600;opacity:.85}
+.spine .star{position:absolute;top:5px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--gold)}
+.spine.lean{transform:rotate(-4deg);transform-origin:bottom left;margin-left:6px}
+.spine.lean:hover,.spine.lean:focus-visible{transform:rotate(-4deg) translateY(-8px)}
+.spine.dim{opacity:.16}
+.spine.hit{box-shadow:0 0 0 2px var(--wall),0 0 0 4px var(--ink)}
+.t-notes{--c:var(--t-notes)} .t-textbook{--c:var(--t-textbook)} .t-outline{--c:var(--t-outline)} .t-paper{--c:var(--t-paper)} .t-assignment{--c:var(--t-assignment)} .t-other{--c:var(--t-other)}
+.bg-notes{background:var(--t-notes)} .bg-textbook{background:var(--t-textbook)} .bg-outline{background:var(--t-outline)} .bg-paper{background:var(--t-paper)} .bg-assignment{background:var(--t-assignment)} .bg-other{background:var(--t-other)}
+.spine.add{background:transparent;border:2px dashed var(--ink-3);color:var(--ink-2);height:150px;width:46px}
+.spine.add .t{margin-top:20px}
+
+/* first run */
+.first{max-width:560px;margin:48px auto;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:28px}
+.first h2{font-family:var(--serif);font-size:26px;margin:0 0 8px}
+.first p{color:var(--ink-2);margin:0 0 18px}
+.first .demo{display:flex;align-items:flex-end;gap:3px;margin:0 0 6px;height:120px}
+.first .demo span{display:block;width:30px;border-radius:2px}
+
+/* list */
+.tablewrap{overflow-x:auto;margin-top:22px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:14px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-weight:600;color:var(--ink-2);font-size:13px;background:var(--wall-2)}
+tr:last-child td{border-bottom:0}
+td .tt{display:flex;align-items:center;gap:10px}
+td .tt i{width:6px;height:26px;border-radius:2px;flex:0 0 auto}
+td button.linkish{background:none;border:0;padding:0;cursor:pointer;text-align:left;font-weight:500}
+td button.linkish:hover{text-decoration:underline}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(10,14,12,.38);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--paper);z-index:21;transform:translateX(102%);transition:transform .24s ease;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:-12px 0 30px rgba(0,0,0,.15)}
+.drawer.on{transform:none}
+.drawer .band{height:10px;flex:0 0 auto}
+.drawer .body{padding:20px 24px 24px;overflow-y:auto;flex:1}
+.drawer .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);right:16px;border:0;background:none;cursor:pointer;color:var(--ink-2);padding:6px;font-size:22px;line-height:1}
+.drawer h3{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.15;margin:4px 34px 4px 0}
+.drawer .sub{color:var(--ink-2);margin:0 0 18px}
+.drawer dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0 0 18px;font-size:14px}
+.drawer dt{color:var(--ink-3)}
+.drawer dd{margin:0;overflow-wrap:anywhere}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}
+.tag{font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--ink-2)}
+.notes{white-space:pre-wrap;background:var(--wall);border-radius:10px;padding:12px 14px;font-size:14px;margin:0 0 18px}
+.drawer .btns{display:flex;flex-wrap:wrap;gap:8px}
+.notice{font-size:13px;color:var(--ink-3);margin:12px 0 0}
+
+/* dialogs */
+dialog{border:0;border-radius:14px;padding:0;background:var(--paper);color:var(--ink);width:min(520px,calc(100% - 24px));max-height:calc(100% - 24px);box-shadow:0 24px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,14,12,.45)}
+dialog form{padding:22px 24px 20px;display:grid;gap:14px}
+dialog h3{font-family:var(--serif);font-size:24px;margin:0}
+label.f{display:grid;gap:5px;font-size:13.5px;font-weight:500;color:var(--ink-2)}
+label.f input,label.f select,label.f textarea{padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--wall);color:var(--ink);font-weight:400;font-size:15px}
+label.f textarea{min-height:70px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+.hint{font-size:12.5px;color:var(--ink-3);font-weight:400}
+.srcpick{display:flex;gap:6px}
+.drop-zone{display:block;border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--ink-2);font-size:14px;cursor:pointer;background:var(--wall)}
+.drop-zone.over{border-color:var(--accent);color:var(--ink)}
+.drop-zone input{display:none}
+.filelist{margin:8px 0 0;padding:0;list-style:none;font-size:13.5px;text-align:left}
+.filelist li{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dlg-foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:4px}
+.dlg-foot .r{display:flex;gap:8px;margin-left:auto}
+.err{color:var(--danger);font-size:13.5px;margin:0;min-height:0}
+
+/* reader */
+.reader{position:fixed;inset:0;z-index:40;background:var(--wall);display:none;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.reader.on{display:flex}
+.reader header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--paper)}
+.reader header h3{flex:1;margin:0;font-family:var(--serif);font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reader .pane{flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start}
+.reader iframe{width:100%;height:100%;border:0;background:#fff}
+.reader img,.reader video{max-height:100%;margin:auto;display:block}
+.reader pre{white-space:pre-wrap;max-width:760px;width:100%;padding:28px;margin:0;font-family:var(--sans);font-size:15px;line-height:1.65}
+.reader .msg{max-width:440px;margin:auto;text-align:center;padding:32px;color:var(--ink-2)}
+
+.samplebar{max-width:1180px;margin:14px auto 0;padding:0 24px}
+.samplebar div{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--gold);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--ink-2)}
+@media (max-width:640px){.samplebar{padding:0 16px}}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translate(-50%,20px);background:var(--ink);color:var(--wall);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.2s;z-index:60;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+footer{max-width:1180px;margin:0 auto;padding:0 24px 30px;color:var(--ink-3);font-size:13px}
+
+@media (max-width:640px){
+  .top{grid-template-columns:1fr;padding:20px 16px 6px}
+  .actions{justify-content:flex-start}
+  .chips,.recent,main,footer{padding-left:16px;padding-right:16px}
+  .row{padding-left:12px;padding-right:12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <button class="avatar" id="avatarBtn" type="button" aria-label="Edit your profile and picture"><span>+</span></button>
+    <div style="min-width:0"><h1 id="shelfTitle">Course shelf</h1>
+    <p id="summary">Opening your shelf…</p></div>
+  </div>
+  <div class="actions">
+    <button class="btn" id="addCourseBtn" type="button">New course</button>
+    <button class="btn primary" id="addItemBtn" type="button">Add material</button>
+  </div>
+  <div class="tools">
+    <label class="search"><span class="sr">Search materials</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search titles, weeks, tags, lecturers…" autocomplete="off">
+    </label>
+    <label><span class="sr">Order books by</span>
+      <select class="sort" id="sort">
+        <option value="type">Order by type</option>
+        <option value="week">Order by week or topic</option>
+        <option value="new">Newest first</option>
+        <option value="az">A to Z</option>
+      </select>
+    </label>
+    <div class="seg" role="group" aria-label="Layout">
+      <button type="button" data-view="shelf" aria-pressed="true">Shelf</button>
+      <button type="button" data-view="list" aria-pressed="false">List</button>
+    </div>
+  </div>
+</header>
+
+<nav class="chips" id="chips" aria-label="Filter by type"></nav>
+<section class="samplebar" id="samplebar" hidden></section>
+<section class="recent" id="recent" hidden></section>
+<main id="main" aria-live="polite"></main>
+<footer id="foot"></footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="dTitle"></aside>
+
+<dialog id="courseDlg">
+  <form id="courseForm" method="dialog">
+    <h3 id="courseDlgTitle">New course</h3>
+    <div class="two">
+      <label class="f">Course code<input name="code" maxlength="20" placeholder="CHEM101"></label>
+      <label class="f">Term<input name="term" maxlength="40" placeholder="Semester 1, 2026"></label>
+    </div>
+    <label class="f">Course name<input name="name" maxlength="80" placeholder="General Chemistry"></label>
+    <label class="f">Lecturer<input name="lecturer" maxlength="60" placeholder="Dr N. Dlamini"></label>
+    <p class="err" id="courseErr"></p>
+    <div class="dlg-foot">
+      <button type="button" class="btn danger" id="deleteCourseBtn" hidden>Delete course</button>
+      <div class="r">
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn primary" id="courseSave">Save course</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="itemDlg">
+  <form id="itemForm" method="dialog">
+    <h3 id="itemDlgTitle">Add material</h3>
+    <div class="two">
+      <label class="f">Course<select name="courseId" required></select></label>
+      <label class="f">Type<select name="type"></select></label>
+    </div>
+    <div class="srcpick seg" role="group" aria-label="Material source" id="srcPick">
+      <button type="button" data-src="file" aria-pressed="true">File</button>
+      <button type="button" data-src="link" aria-pressed="false">Web link</button>
+    </div>
+    <div id="srcFile">
+      <label class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" multiple>
+        <span id="dropText">Drop files here, or choose from your device</span>
+        <span class="hint" style="display:block;margin-top:4px">PDF, slides, Word, images, video or text</span>
+        <ul class="filelist" id="fileList"></ul>
+      </label>
+    </div>
+    <label class="f" id="srcLink" hidden>Link<input name="url" type="url" placeholder="https://library.university.ac.za/…"></label>
+    <p class="extract" id="extractStatus" aria-live="polite"></p>
+    <label class="f" id="titleField">Title<input name="title" maxlength="120" placeholder="Week 3: Chemical bonding"><span class="hint" id="titleHint"></span></label>
+    <div class="two">
+      <label class="f">Week or topic<input name="week" maxlength="40" placeholder="Week 3"></label>
+      <label class="f">Author or lecturer<input name="author" maxlength="80"></label>
+    </div>
+    <label class="f">Tags<input name="tags" maxlength="160" placeholder="exam, chapter 4, revision"><span class="hint">Separate with commas</span></label>
+    <label class="f">Notes<textarea name="notes" maxlength="2000" placeholder="What's in it, pages to read, reminders"></textarea></label>
+    <p class="err" id="itemErr"></p>
+    <div class="dlg-foot">
+      <div class="r">
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn primary" id="itemSave">Add to shelf</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="profileDlg">
+  <form id="profileForm" method="dialog">
+    <h3>Your profile</h3>
+    <div class="pf-pic">
+      <div class="avatar" id="pfPreview" aria-hidden="true"></div>
+      <div class="btns">
+        <label class="btn small" style="cursor:pointer">Choose picture<input type="file" id="pfFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden></label>
+        <button type="button" class="btn small" id="pfRemove">Remove picture</button>
+      </div>
+    </div>
+    <label class="f">Your name<input name="name" maxlength="60" placeholder="Thandi Nkosi"></label>
+    <label class="f">Programme and year<input name="programme" maxlength="80" placeholder="BCom Economics, 2nd year"></label>
+    <p class="err" id="pfErr"></p>
+    <div class="dlg-foot"><div class="r">
+      <button type="button" class="btn" data-close>Cancel</button>
+      <button type="submit" class="btn primary" id="pfSave">Save profile</button>
+    </div></div>
+  </form>
+</dialog>
+
+<dialog id="confirmDlg">
+  <form method="dialog">
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmText" style="margin:0;color:var(--ink-2)"></p>
+    <div class="dlg-foot"><div class="r">
+      <button class="btn" value="no">Cancel</button>
+      <button class="btn primary" value="yes" id="confirmYes" style="background:var(--danger);border-color:var(--danger);color:#fff">Delete</button>
+    </div></div>
+  </form>
+</dialog>
+
+<div class="reader" id="reader" role="dialog" aria-modal="true" aria-labelledby="rTitle">
+  <header>
+    <h3 id="rTitle"></h3>
+    <button class="btn small" id="rSave" type="button">Save a copy</button>
+    <button class="btn small" id="rClose" type="button">Close</button>
+  </header>
+  <div class="pane" id="rPane"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+const TYPES = [
+  {id:'notes',      label:'Lecture notes',  plural:'Lecture notes',  k:'NOTES', h:176, w:44},
+  {id:'textbook',   label:'eTextbook',      plural:'eTextbooks',     k:'TEXT',  h:218, w:58},
+  {id:'outline',    label:'Course outline', plural:'Course outlines',k:'GUIDE', h:146, w:40},
+  {id:'paper',      label:'Past paper',     plural:'Past papers',    k:'PAPER', h:162, w:40},
+  {id:'assignment', label:'Assignment',     plural:'Assignments',    k:'TASK',  h:156, w:42},
+  {id:'other',      label:'Other',          plural:'Other',          k:'MISC',  h:166, w:44},
+];
+const TYPE = Object.fromEntries(TYPES.map(t => [t.id, t]));
+const ASSET_MIME = {pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',mp4:'video/mp4',webm:'video/webm',txt:'text/plain',md:'text/markdown',csv:'text/csv',json:'application/json'};
+const SAVE_EXT = new Set(['gif','png','jpg','jpeg','webp','mp4','webm','txt','json','md','docx','pptx','epub','csv','html','svg','pdf','xlsx','zip']);
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const newId = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+const extOf = n => (String(n).match(/\.([a-z0-9]+)$/i) || [,''])[1].toLowerCase();
+const stripExt = n => String(n).replace(/\.[a-z0-9]+$/i, '').replace(/[_]+/g, ' ').trim();
+const hash = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); };
+const fmtSize = b => !b ? '' : b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(0) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
+const fmtDate = t => t ? new Date(t).toLocaleDateString(undefined, {day:'numeric', month:'short', year:'numeric'}) : '';
+const natural = new Intl.Collator(undefined, {numeric:true, sensitivity:'base'});
+
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 3600);
+}
+
+/* ---------- device file store (IndexedDB) ---------- */
+const IDB = {
+  _db: null,
+  open() {
+    if (this._db) return Promise.resolve(this._db);
+    return new Promise((res, rej) => {
+      try {
+        const r = indexedDB.open('course-shelf-files', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('files');
+        r.onsuccess = () => { this._db = r.result; res(this._db); };
+        r.onerror = () => rej(r.error);
+      } catch (e) { rej(e); }
+    });
+  },
+  async tx(mode, fn) {
+    const db = await this.open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('files', mode); const st = t.objectStore('files');
+      const req = fn(st); t.oncomplete = () => res(req && req.result); t.onerror = () => rej(t.error);
+    });
+  },
+  put(k, v) { return this.tx('readwrite', s => s.put(v, k)); },
+  get(k) { return this.tx('readonly', s => s.get(k)).catch(() => null); },
+  del(k) { return this.tx('readwrite', s => s.delete(k)).catch(() => {}); },
+};
+
+/* ---------- shelf data store ---------- */
+const LS_KEY = 'course-shelf.v1';
+const Store = {
+  mode: 'loading', courses: [], items: [], profile: {}, profileRef: null, base: null, assets: null, downloads: null, readOnly: false,
+  ready: false, onChange() {},
+  async init() {
+    let db = null, user = null, uid = null;
+    const has = window.claude && typeof window.claude.use === 'function';
+    if (has) {
+      try { [db, user] = await Promise.all([claude.use('db'), claude.use('user')]); } catch (e) {}
+      if (db && user) { try { uid = await user.id(); } catch (e) {} }
+      claude.use('downloads').then(d => { this.downloads = d; }).catch(() => {});
+    }
+    if (db && uid) {
+      this.mode = 'cloud';
+      this.base = db.doc('data/users/' + uid + '/shelf');
+      this.profileRef = db.doc('data/users/' + uid + '/profile');
+      this.profileRef.onSnapshot(d => { this.profile = d.exists ? Object.assign({}, d.data()) : {}; this.onChange(); }, () => {});
+      try { this.assets = await claude.use('assets'); } catch (e) {}
+      let gotC = false, gotI = false;
+      const done = () => { if (gotC && gotI) { this.ready = true; this.onChange(); } };
+      this.base.collection('courses').onSnapshot(s => {
+        this.courses = s.docs.map(d => Object.assign({id: d.id}, d.data())); gotC = true; done();
+      }, e => this.subErr(e));
+      this.base.collection('items').onSnapshot(s => {
+        this.items = s.docs.map(d => Object.assign({id: d.id}, d.data())); gotI = true; done();
+      }, e => this.subErr(e));
+    } else {
+      this.mode = 'local';
+      try { const d = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); this.courses = d.courses || []; this.items = d.items || []; this.profile = d.profile || {}; } catch (e) {}
+      this.ready = true; this.onChange();
+    }
+  },
+  subErr(e) {
+    if (!this.ready) { this.ready = true; this.onChange(); }
+    toast(e && e.code === 'revoked' ? 'Your shelf is no longer available in this view.' : 'Couldn\u2019t refresh your shelf. Reload the page to try again.');
+  },
+  saveLocal() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify({courses: this.courses, items: this.items, profile: this.profile})); }
+    catch (e) { toast('This browser\u2019s storage is full. Remove some materials and try again.'); }
+    this.onChange();
+  },
+  writeErr(e) {
+    const c = e && e.code;
+    if (c === 'invalid_argument') { this.readOnly = true; toast('You can view this shelf but can\u2019t change it.'); this.onChange(); }
+    else if (c === 'quota_exceeded') toast('Your shelf has reached its storage limit. Delete some materials to add more.');
+    else toast('That change didn\u2019t save. Check your connection and try again.');
+    throw e;
+  },
+  async put(kind, obj) {
+    const {id, ...body} = obj;
+    if (this.mode === 'cloud') {
+      try { await this.base.collection(kind).doc(id).set(JSON.parse(JSON.stringify(body))); }
+      catch (e) { this.writeErr(e); }
+    } else {
+      const arr = this[kind]; const i = arr.findIndex(x => x.id === id);
+      if (i >= 0) arr[i] = obj; else arr.push(obj);
+      this.saveLocal();
+    }
+  },
+  async remove(kind, id) {
+    if (this.mode === 'cloud') {
+      try { await this.base.collection(kind).doc(id).delete(); } catch (e) { this.writeErr(e); }
+    } else {
+      this[kind] = this[kind].filter(x => x.id !== id); this.saveLocal();
+    }
+  },
+  async saveProfile(p) {
+    if (this.mode === 'cloud') {
+      try { await this.profileRef.set(JSON.parse(JSON.stringify(p))); } catch (e) { this.writeErr(e); }
+    } else { this.profile = p; this.saveLocal(); }
+  },
+  async putFile(file) {
+    const ext = extOf(file.name), mime = ASSET_MIME[ext];
+    const meta = {kind: 'file', name: file.name, size: file.size, ext, mime: mime || file.type || ''};
+    if (this.mode === 'cloud' && this.assets && mime && file.size <= 20 * 1048576) {
+      try { const r = await this.assets.upload(file, {type: mime}); return Object.assign(meta, {store: 'cloud', assetId: r.id}); }
+      catch (e) {
+        if (e && e.code === 'quota_or_state') toast('Shelf file storage is full, so this file is kept in this browser only.');
+      }
+    }
+    const key = 'f-' + newId();
+    try { await IDB.put(key, file); }
+    catch (e) { throw new Error('This browser can\u2019t store files. Try adding it as a web link instead.'); }
+    return Object.assign(meta, {store: 'device', key});
+  },
+  async getBlob(src) {
+    if (src.store === 'cloud') {
+      const r = await fetch('/_blob/' + src.assetId);
+      if (!r.ok) return null; return r.blob();
+    }
+    return IDB.get(src.key);
+  },
+  async removeFile(src) {
+    if (!src || src.kind !== 'file') return;
+    if (src.store === 'cloud') { if (this.assets) try { await this.assets.delete(src.assetId); } catch (e) {} }
+    else await IDB.del(src.key);
+  },
+};
+
+/* ---------- UI state ---------- */
+const ui = { view: 'shelf', q: '', type: 'all', starred: false, sort: 'type', openId: null };
+
+function itemsFor(courseId) {
+  const list = Store.items.filter(i => i.courseId === courseId);
+  const typeIdx = id => TYPES.findIndex(t => t.id === id);
+  const by = {
+    type: (a, b) => typeIdx(a.type) - typeIdx(b.type) || natural.compare(a.week || '~', b.week || '~') || natural.compare(a.title, b.title),
+    week: (a, b) => natural.compare(a.week || '~', b.week || '~') || typeIdx(a.type) - typeIdx(b.type) || natural.compare(a.title, b.title),
+    new: (a, b) => (b.addedAt || 0) - (a.addedAt || 0),
+    az: (a, b) => natural.compare(a.title, b.title),
+  }[ui.sort];
+  return list.sort(by);
+}
+function sortedCourses() { return [...Store.courses].sort((a, b) => natural.compare(a.code || a.name, b.code || b.name)); }
+function course(id) { return Store.courses.find(c => c.id === id); }
+function courseLabel(c) { return c ? [c.code, c.name].filter(Boolean).join(' ') : 'No course'; }
+function passesType(i) { return (ui.type === 'all' || i.type === ui.type) && (!ui.starred || i.starred); }
+function matches(i) {
+  if (!ui.q) return true;
+  const c = course(i.courseId) || {};
+  const hay = [i.title, i.week, i.author, i.notes, (i.tags || []).join(' '), i.source && (i.source.name || i.source.url), TYPE[i.type] && TYPE[i.type].label, c.code, c.name, c.lecturer].join(' ').toLowerCase();
+  return ui.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+}
+
+/* ---------- render ---------- */
+function render() {
+  const nC = Store.courses.length, nI = Store.items.length, pr = Store.profile || {};
+  const counts = !Store.ready ? 'Opening your shelf\u2026'
+    : nC === 0 ? 'Notes, textbooks and outlines, sorted by course'
+    : `${nC} ${nC === 1 ? 'course' : 'courses'}, ${nI} ${nI === 1 ? 'material' : 'materials'}`;
+  $('#summary').textContent = pr.programme && Store.ready ? `${pr.programme}. ${counts}` : counts;
+  const first = (pr.name || '').trim().split(/\s+/)[0];
+  $('#shelfTitle').textContent = first ? `${first}\u2019${/s$/i.test(first) ? '' : 's'} shelf` : 'Course shelf';
+  paintAvatar($('#avatarBtn'), pr.photo, pr.name);
+  const canEdit = Store.ready && !Store.readOnly;
+  $('#addCourseBtn').disabled = !canEdit;
+  $('#addItemBtn').disabled = !canEdit || nC === 0;
+  renderChips(); renderRecent(); renderSampleBar();
+  const main = $('#main');
+  if (!Store.ready) { main.innerHTML = '<p class="status">Opening your shelf\u2026</p>'; return; }
+  if (nC === 0) { main.innerHTML = firstRun(); return; }
+  main.innerHTML = ui.view === 'shelf' ? renderShelves() : renderList();
+  $('#foot').textContent = Store.mode === 'cloud'
+    ? 'Your shelf is saved to your account. Word, PowerPoint and other formats that can\u2019t be uploaded are kept in this browser only and are marked as such.'
+    : 'Your shelf and files are saved in this browser.';
+  if (ui.openId) renderDrawer();
+}
+
+function renderChips() {
+  const counts = {}; Store.items.forEach(i => counts[i.type] = (counts[i.type] || 0) + 1);
+  const chip = (id, label, color) => `<button type="button" class="chip" data-type="${id}" aria-pressed="${ui.type === id && !ui.starred}">${color ? `<i class="bg-${id}"></i>` : ''}${esc(label)}</button>`;
+  $('#chips').innerHTML = chip('all', 'Everything') +
+    TYPES.filter(t => counts[t.id]).map(t => chip(t.id, t.plural, true)).join('') +
+    (Store.items.some(i => i.starred) ? `<button type="button" class="chip" data-starred aria-pressed="${ui.starred}"><i style="background:var(--gold);border-radius:50%;width:9px;height:9px"></i>Starred</button>` : '');
+}
+
+function renderSampleBar() {
+  const b = $('#samplebar');
+  const n = Store.courses.filter(c => c.sample).length;
+  if (!Store.ready || !n) { b.hidden = true; return; }
+  b.hidden = false;
+  b.innerHTML = `<div><span>You’re looking at a sample shelf of ${n} economics ${n === 1 ? 'course' : 'courses'}. Sample books have no files attached.</span>${Store.readOnly ? '' : '<button class="btn small" type="button" data-act="clear-sample">Remove sample shelf</button>'}</div>`;
+}
+let clearing = false;
+async function clearSample() {
+  if (clearing) return;
+  const items = Store.items.filter(i => i.sample), courses = Store.courses.filter(c => c.sample);
+  const ok = await confirmBox('Remove the sample shelf?', `This deletes the ${courses.length} sample courses and their ${items.length} sample books. Your own courses and files stay as they are.`);
+  if (!ok) return;
+  clearing = true; let done = 0; const total = items.length + courses.length;
+  try {
+    for (const i of items) { await Store.remove('items', i.id); if (++done % 25 === 0) toast(`Removing samples… ${done} of ${total}`); }
+    for (const c of courses) { await Store.remove('courses', c.id); if (++done % 25 === 0) toast(`Removing samples… ${done} of ${total}`); }
+    toast('Sample shelf removed');
+  } catch (e) { toast(`Removed ${done} of ${total}. Select Remove sample shelf again to finish.`); }
+  clearing = false;
+}
+function renderRecent() {
+  const r = $('#recent');
+  const recent = Store.items.filter(i => i.lastOpened).sort((a, b) => b.lastOpened - a.lastOpened).slice(0, 6);
+  if (!Store.ready || ui.q || !recent.length || ui.view !== 'shelf') { r.hidden = true; return; }
+  r.hidden = false;
+  r.innerHTML = '<h2>Recently opened</h2><div class="recent-row">' + recent.map(i => {
+    const c = course(i.courseId);
+    return `<button type="button" class="recent-card" data-open="${esc(i.id)}"><i class="bg-${esc(i.type)}"></i><span><b>${esc(i.title)}</b><small>${esc(c ? c.code || c.name : '')}${i.week ? ', ' + esc(i.week) : ''}</small></span></button>`;
+  }).join('') + '</div>';
+}
+
+function firstRun() {
+  const demo = [['notes',96],['notes',90],['textbook',118],['outline',72],['paper',84],['assignment',80]].map(([t, h]) => `<span class="bg-${t}" style="height:${h}px"></span>`).join('');
+  return `<div class="first"><div class="demo" aria-hidden="true">${demo}</div><div class="plank" style="margin-bottom:22px"></div>
+    <h2>Start with a course</h2>
+    <p>Each course gets its own shelf. Add the course you're taking, then drop in lecture notes, eTextbooks, the course outline and past papers so they're all in one place.</p>
+    <button class="btn primary" type="button" data-act="new-course">Add your first course</button></div>`;
+}
+
+function spine(i, hit) {
+  const t = TYPE[i.type] || TYPE.other, hv = hash(i.id);
+  const h = t.h + (hv % 5) * 6 - 12, w = t.w + (hv % 3) * 4 - 4;
+  const lean = !ui.q && hv % 11 === 0 ? ' lean' : '';
+  const dim = ui.q && !hit ? ' dim' : ui.q ? ' hit' : '';
+  const label = `${i.title}, ${t.label}${i.week ? ', ' + i.week : ''}`;
+  return `<button type="button" class="spine t-${esc(t.id)}${lean}${dim}" style="--h:${h}px;--w:${w}px" data-open="${esc(i.id)}" aria-label="${esc(label)}" title="${esc(label)}">
+    ${i.starred ? '<span class="star" aria-hidden="true"></span>' : ''}<span class="t">${esc(i.title)}</span><span class="k" aria-hidden="true">${t.k}</span></button>`;
+}
+
+function renderShelves() {
+  let total = 0, hits = 0;
+  const html = sortedCourses().map(c => {
+    const all = itemsFor(c.id), shown = all.filter(passesType);
+    const found = shown.filter(matches); total += shown.length; hits += found.length;
+    if (ui.q && !found.length) return '';
+    const meta = [c.lecturer, c.term, `${all.length} ${all.length === 1 ? 'item' : 'items'}`].filter(Boolean).join(', ');
+    const empty = !all.length ? '<p class="empty-row">This shelf is empty. Drop files onto it or use Add.</p>'
+      : !shown.length ? `<p class="empty-row">No ${esc(ui.starred ? 'starred materials' : TYPE[ui.type].plural.toLowerCase())} in this course yet.</p>` : '';
+    const canEdit = !Store.readOnly;
+    return `<section class="shelf" aria-label="${esc(courseLabel(c))}">
+      <div class="shelf-head"><div><h2>${esc(c.code || c.name)}${c.code && c.name ? `<span>${esc(c.name)}</span>` : ''}</h2><p>${esc(meta)}</p></div>
+      ${canEdit ? `<div class="acts"><button class="btn small" type="button" data-edit-course="${esc(c.id)}">Edit course</button><button class="btn small" type="button" data-add-to="${esc(c.id)}">Add</button></div>` : ''}</div>
+      <div class="case"><div class="row" data-drop="${esc(c.id)}">${shown.map(i => spine(i, matches(i))).join('')}${empty}
+      ${canEdit && !ui.q ? `<button class="spine add" type="button" data-add-to="${esc(c.id)}" aria-label="Add material to ${esc(courseLabel(c))}"><span class="t">Add</span></button>` : ''}</div></div>
+      <div class="plank"></div></section>`;
+  }).join('');
+  const status = ui.q ? `<p class="status">${hits ? `${hits} ${hits === 1 ? 'match' : 'matches'} for \u201c${esc(ui.q)}\u201d` : `Nothing matches \u201c${esc(ui.q)}\u201d. Try a course code, week number or tag.`}</p>` : '';
+  return status + html;
+}
+
+function renderList() {
+  const rows = [];
+  sortedCourses().forEach(c => itemsFor(c.id).filter(i => passesType(i) && matches(i)).forEach(i => rows.push([c, i])));
+  if (!rows.length) return `<p class="status">${ui.q ? `Nothing matches \u201c${esc(ui.q)}\u201d.` : 'No materials to show yet. Use Add material to fill your shelves.'}</p>`;
+  return `<p class="status">${rows.length} ${rows.length === 1 ? 'material' : 'materials'}</p><div class="tablewrap"><table>
+    <thead><tr><th>Title</th><th>Course</th><th>Type</th><th>Week or topic</th><th>Added</th></tr></thead><tbody>
+    ${rows.map(([c, i]) => `<tr><td><div class="tt"><i class="bg-${esc(i.type)}"></i><button class="linkish" type="button" data-open="${esc(i.id)}">${i.starred ? '\u2605 ' : ''}${esc(i.title)}</button></div></td>
+      <td>${esc(c.code || c.name)}</td><td>${esc((TYPE[i.type] || TYPE.other).label)}</td><td>${esc(i.week || '')}</td><td>${esc(fmtDate(i.addedAt))}</td></tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+/* ---------- drawer ---------- */
+function openDrawer(id) { ui.openId = id; renderDrawer(); $('#drawer').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false'); $('#scrim').classList.add('on'); setTimeout(() => { const b = $('#drawer .btn'); b && b.focus(); }, 60); }
+function closeDrawer() { const id = ui.openId; ui.openId = null; $('#drawer').classList.remove('on'); $('#drawer').setAttribute('aria-hidden', 'true'); $('#scrim').classList.remove('on'); const s = id && document.querySelector(`[data-open="${CSS.escape(id)}"]`); s && s.focus(); }
+function renderDrawer() {
+  const i = Store.items.find(x => x.id === ui.openId);
+  if (!i) { closeDrawer(); return; }
+  const c = course(i.courseId), t = TYPE[i.type] || TYPE.other, s = i.source || {};
+  const isLink = s.kind === 'link', isSample = s.kind === 'sample';
+  const rows = [
+    ['Course', courseLabel(c)], ['Week or topic', i.week], ['Author', i.author],
+    [isLink ? 'Link' : 'File', isLink ? s.url : [s.name, s.pages ? s.pages + ' pages' : '', fmtSize(s.size)].filter(Boolean).join(', ') + (isSample ? ' (sample, not attached)' : '')],
+    ['Added', fmtDate(i.addedAt)], ['Last opened', fmtDate(i.lastOpened)],
+  ].filter(r => r[1]);
+  const canEdit = !Store.readOnly;
+  $('#drawer').innerHTML = `<div class="band bg-${esc(t.id)}"></div><button class="x" type="button" data-act="close-drawer" aria-label="Close">\u00d7</button>
+  <div class="body"><p class="sub" style="margin:0">${esc(t.label)}</p><h3 id="dTitle" style="margin-bottom:18px">${esc(i.title)}</h3>
+  <dl>${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+  ${(i.tags || []).length ? `<div class="tags">${i.tags.map(g => `<span class="tag">${esc(g)}</span>`).join('')}</div>` : ''}
+  ${i.notes ? `<div class="notes">${esc(i.notes)}</div>` : ''}
+  <div class="btns">
+    ${isSample ? '' : isLink ? `<a class="btn primary" href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" data-mark="${esc(i.id)}">Open link</a>` : `<button class="btn primary" type="button" data-act="read">Open</button><button class="btn" type="button" data-act="save">Save a copy</button>`}
+    ${canEdit ? `<button class="btn" type="button" data-act="star">${i.starred ? 'Unstar' : 'Star'}</button>
+    <button class="btn" type="button" data-act="edit">Edit</button>
+    <button class="btn danger" type="button" data-act="delete">Delete</button>` : ''}
+  </div>
+  ${isSample ? '<p class="notice">This is a sample book, so there\u2019s no file to open. Your own materials open here with one tap.</p>' : ''}
+  ${s.store === 'device' && Store.mode === 'cloud' ? '<p class="notice">This file is stored in this browser only, so it won\u2019t open on your other devices.</p>' : ''}
+  </div>`;
+}
+
+/* ---------- reader ---------- */
+let readerUrl = null, readerItem = null;
+async function touch(i) {
+  const copy = Object.assign({}, i, {lastOpened: Date.now()});
+  try { await Store.put('items', copy); } catch (e) {}
+}
+async function openReader(i) {
+  const s = i.source || {};
+  readerItem = i;
+  let url = null;
+  if (s.store === 'cloud') url = '/_blob/' + s.assetId;
+  else {
+    const b = await IDB.get(s.key);
+    if (!b) { toast('This file was added on another device or browser, so it isn\u2019t available here.'); return; }
+    url = URL.createObjectURL(b); readerUrl = url;
+  }
+  touch(i);
+  $('#rTitle').textContent = i.title;
+  const pane = $('#rPane'), ext = s.ext || extOf(s.name), m = s.mime || '';
+  if (ext === 'pdf' || m === 'application/pdf') pane.innerHTML = `<iframe src="${esc(url)}" title="${esc(i.title)}"></iframe>`;
+  else if (m.startsWith('image/') || ['png','jpg','jpeg','gif','webp'].includes(ext)) pane.innerHTML = `<img src="${esc(url)}" alt="${esc(i.title)}">`;
+  else if (m.startsWith('video/') || ['mp4','webm'].includes(ext)) pane.innerHTML = `<video src="${esc(url)}" controls></video>`;
+  else if (['txt','md','csv','json'].includes(ext)) {
+    pane.innerHTML = '<pre>Loading\u2026</pre>';
+    try { const txt = await (await fetch(url)).text(); pane.querySelector('pre').textContent = txt; }
+    catch (e) { pane.innerHTML = '<div class="msg">This file couldn\u2019t be read. Use Save a copy to open it on your device.</div>'; }
+  } else {
+    pane.innerHTML = `<div class="msg"><p>${esc((ext || 'This').toUpperCase())} files can\u2019t be previewed here.</p><p>Use Save a copy to open it in Word, PowerPoint or another app on your device.</p></div>`;
+  }
+  $('#reader').classList.add('on'); $('#rClose').focus();
+}
+function closeReader() {
+  $('#reader').classList.remove('on'); $('#rPane').innerHTML = '';
+  if (readerUrl) { URL.revokeObjectURL(readerUrl); readerUrl = null; }
+}
+async function saveCopy(i) {
+  const s = i.source || {};
+  const blob = await Store.getBlob(s).catch(() => null);
+  if (!blob) { toast('This file isn\u2019t available on this device.'); return; }
+  const ext = s.ext || extOf(s.name);
+  if (Store.downloads && SAVE_EXT.has(ext)) {
+    try { await Store.downloads.save({filename: s.name, data: blob}); touch(i); }
+    catch (e) { if (e && e.code !== 'declined') toast(e.code === 'rejected_extension' ? 'This file type can\u2019t be saved from here.' : 'The file couldn\u2019t be saved. Try again.'); }
+    return;
+  }
+  const a = document.createElement('a'); const u = URL.createObjectURL(blob);
+  a.href = u; a.download = s.name || 'material'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 4000);
+}
+
+/* ---------- course dialog ---------- */
+let editingCourse = null;
+function openCourseDlg(c) {
+  editingCourse = c || null;
+  const f = $('#courseForm'); f.reset(); $('#courseErr').textContent = '';
+  $('#courseDlgTitle').textContent = c ? 'Edit course' : 'New course';
+  $('#deleteCourseBtn').hidden = !c;
+  if (c) ['code','name','lecturer','term'].forEach(k => f.elements[k].value = c[k] || '');
+  $('#courseDlg').showModal(); f.elements.code.focus();
+}
+$('#courseForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, v = k => f.elements[k].value.trim();
+  if (!v('code') && !v('name')) { $('#courseErr').textContent = 'Add a course code or a course name.'; return; }
+  const c = Object.assign({}, editingCourse || {id: newId(), createdAt: Date.now()}, {code: v('code').toUpperCase(), name: v('name'), lecturer: v('lecturer'), term: v('term')});
+  $('#courseSave').disabled = true;
+  try { await Store.put('courses', c); $('#courseDlg').close(); toast(editingCourse ? 'Course updated' : 'Course added'); } catch (err) {}
+  $('#courseSave').disabled = false;
+});
+$('#deleteCourseBtn').addEventListener('click', async () => {
+  const c = editingCourse; if (!c) return;
+  const items = Store.items.filter(i => i.courseId === c.id);
+  $('#courseDlg').close();
+  const ok = await confirmBox(`Delete ${c.code || c.name}?`, items.length ? `This removes the course and its ${items.length} ${items.length === 1 ? 'material' : 'materials'}, including uploaded files. This can't be undone.` : 'This removes the empty course shelf.');
+  if (!ok) return;
+  try {
+    for (const i of items) { await Store.removeFile(i.source); await Store.remove('items', i.id); }
+    await Store.remove('courses', c.id); toast('Course deleted');
+  } catch (e) {}
+});
+
+/* ---------- item dialog ---------- */
+let editingItem = null, pending = [], srcMode = 'file';
+function setSrc(m) {
+  srcMode = m;
+  document.querySelectorAll('#srcPick button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.src === m)));
+  $('#srcFile').hidden = m !== 'file'; $('#srcLink').hidden = m !== 'link';
+  updateTitleHint();
+}
+function updateTitleHint() {
+  const multi = srcMode === 'file' && pending.length > 1;
+  $('#titleField').hidden = multi;
+  $('#titleHint').textContent = srcMode === 'file' && !editingItem ? 'Leave blank to use the file name' : '';
+  $('#dropText').textContent = multi ? `${pending.length} files selected. Each becomes its own book, named after the file.` : editingItem && editingItem.source && editingItem.source.kind === 'file' ? 'Drop a file here to replace the current one (optional)' : 'Drop files here, or choose from your device';
+  $('#fileList').innerHTML = pending.map(f => `<li>${esc(f.name)} <span class="hint">${fmtSize(f.size)}</span></li>`).join('') ||
+    (editingItem && editingItem.source && editingItem.source.kind === 'file' ? `<li>Current: ${esc(editingItem.source.name)}</li>` : '');
+}
+function openItemDlg({courseId, item, files} = {}) {
+  if (!Store.courses.length) { openCourseDlg(); return; }
+  editingItem = item || null; pending = files ? [...files] : [];
+  const f = $('#itemForm'); f.reset(); $('#itemErr').textContent = '';
+  extractToken++; setExtract(''); lastPages = 0;
+  [...f.elements].forEach(el => { delete el.dataset.touched; delete el.dataset.auto; });
+  if (courseId || item) f.elements.courseId.dataset.touched = '1';
+  if (item) f.elements.type.dataset.touched = '1';
+  f.elements.courseId.innerHTML = sortedCourses().map(c => `<option value="${esc(c.id)}">${esc(courseLabel(c))}</option>`).join('');
+  f.elements.type.innerHTML = TYPES.map(t => `<option value="${t.id}">${t.label}</option>`).join('');
+  $('#fileInput').multiple = !item;
+  if (item) {
+    f.elements.courseId.value = item.courseId; f.elements.type.value = item.type;
+    f.elements.title.value = item.title || ''; f.elements.week.value = item.week || ''; f.elements.author.value = item.author || '';
+    f.elements.tags.value = (item.tags || []).join(', '); f.elements.notes.value = item.notes || '';
+    if (item.source && item.source.kind === 'link') f.elements.url.value = item.source.url;
+    setSrc(item.source && item.source.kind === 'link' ? 'link' : 'file');
+    $('#srcPick').hidden = true;
+  } else {
+    if (courseId) f.elements.courseId.value = courseId;
+    else if (ui.openId) { const o = Store.items.find(x => x.id === ui.openId); if (o) f.elements.courseId.value = o.courseId; }
+    if (ui.type !== 'all') f.elements.type.value = ui.type;
+    $('#srcPick').hidden = false; setSrc('file');
+  }
+  $('#itemDlgTitle').textContent = item ? 'Edit material' : 'Add material';
+  $('#itemSave').textContent = item ? 'Save changes' : 'Add to shelf';
+  $('#itemDlg').showModal();
+  if (pending.length === 1) extractFile(pending[0]);
+}
+document.querySelectorAll('#srcPick button').forEach(b => b.addEventListener('click', () => setSrc(b.dataset.src)));
+$('#fileInput').addEventListener('change', e => { pending = [...e.target.files]; updateTitleHint(); afterPick(); });
+const dz = $('#dropZone');
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('over'); }));
+dz.addEventListener('drop', e => { const fs = [...(e.dataTransfer.files || [])]; if (fs.length) { pending = editingItem ? fs.slice(0, 1) : fs; updateTitleHint(); afterPick(); } });
+function afterPick() {
+  if (pending.length === 1) extractFile(pending[0]);
+  else { extractToken++; setExtract(pending.length > 1 ? 'Titles and authors will be taken from each file\u2019s details or file name. You can edit each book afterwards.' : ''); }
+}
+$('#itemForm').addEventListener('input', e => { if (e.target.name) { e.target.dataset.touched = '1'; delete e.target.dataset.auto; } });
+$('#itemForm').addEventListener('change', e => { if (e.target.tagName === 'SELECT') { e.target.dataset.touched = '1'; delete e.target.dataset.auto; } });
+let urlTimer;
+$('#itemForm').elements.url.addEventListener('input', e => { clearTimeout(urlTimer); urlTimer = setTimeout(() => extractLink(e.target.value.trim()), 700); });
+
+$('#itemForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, v = k => f.elements[k].value.trim(), err = $('#itemErr'), btn = $('#itemSave');
+  err.textContent = '';
+  const common = {courseId: v('courseId'), type: v('type'), week: v('week'), author: v('author'), notes: v('notes'),
+    tags: v('tags').split(',').map(s => s.trim()).filter(Boolean).slice(0, 12)};
+  let url = '';
+  if (srcMode === 'link') {
+    url = v('url');
+    if (!/^https?:\/\/\S+\.\S+/i.test(url)) { err.textContent = 'Enter a full web address starting with https://'; return; }
+    if (!v('title')) { err.textContent = 'Give this link a title so you can find it later.'; return; }
+  } else if (!editingItem && !pending.length) { err.textContent = 'Choose at least one file, or switch to Web link.'; return; }
+  btn.disabled = true; const label = btn.textContent;
+  try {
+    if (editingItem) {
+      const it = Object.assign({}, editingItem, common, {title: v('title') || editingItem.title});
+      if (srcMode === 'link') it.source = {kind: 'link', url};
+      else if (pending.length) {
+        btn.textContent = 'Uploading\u2026';
+        const src = await Store.putFile(pending[0]);
+        if (lastPages) src.pages = lastPages;
+        await Store.removeFile(editingItem.source); it.source = src;
+      }
+      await Store.put('items', it); toast('Changes saved');
+    } else if (srcMode === 'link') {
+      await Store.put('items', Object.assign({id: newId(), title: v('title'), source: {kind: 'link', url}, starred: false, addedAt: Date.now(), lastOpened: 0}, common));
+      toast('Link added to the shelf');
+    } else {
+      let n = 0;
+      for (const file of pending) {
+        n++; btn.textContent = pending.length > 1 ? `Adding ${n} of ${pending.length}\u2026` : 'Uploading\u2026';
+        let info = {};
+        if (pending.length > 1) { try { info = await readFileInfo(file); } catch (x) {} }
+        const src = await Store.putFile(file);
+        if (pending.length === 1 && lastPages) src.pages = lastPages; else if (info.pages) src.pages = info.pages;
+        const title = pending.length === 1 && v('title') ? v('title') : (goodTitle(info.title) || stripExt(file.name));
+        const extra = pending.length > 1 && !common.author && info.author ? {author: info.author} : {};
+        await Store.put('items', Object.assign({id: newId(), title, source: src, starred: false, addedAt: Date.now() + n, lastOpened: 0}, common, extra));
+      }
+      toast(pending.length > 1 ? `${pending.length} materials added` : 'Added to the shelf');
+    }
+    $('#itemDlg').close(); pending = [];
+  } catch (ex) {
+    if (ex && ex.message && !ex.code) err.textContent = ex.message;
+  } finally { btn.disabled = false; btn.textContent = label; }
+});
+
+/* ---------- reading details from files and links ---------- */
+const LIBS = {
+  pdf: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+  pdfWorker: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+  zip: 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
+};
+const loaded = {};
+function loadScript(src) {
+  return loaded[src] || (loaded[src] = new Promise((res, rej) => {
+    const sc = document.createElement('script'); sc.src = src; sc.onload = res;
+    sc.onerror = () => { delete loaded[src]; rej(new Error('load failed')); };
+    document.head.appendChild(sc);
+  }));
+}
+async function pdfLib() {
+  await loadScript(LIBS.pdf); await loadScript(LIBS.pdfWorker);
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = LIBS.pdfWorker;
+  return window.pdfjsLib;
+}
+const decodeXml = s => String(s || '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n)).replace(/&amp;/g, '&').trim();
+function goodTitle(t) {
+  t = String(t || '').trim();
+  if (t.length < 3 || t.length > 160) return '';
+  if (/^(microsoft (word|powerpoint)|untitled|document\d*|presentation\d*|slide \d+|powerpoint presentation)\b/i.test(t)) return '';
+  if (/\.(docx?|pptx?|pdf|tex|dvi)$/i.test(t)) return '';
+  return t;
+}
+async function readFileInfo(file) {
+  const ext = extOf(file.name);
+  if (ext === 'pdf') {
+    const lib = await pdfLib();
+    const doc = await lib.getDocument({data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false, disableFontFace: true}).promise;
+    const md = await doc.getMetadata().catch(() => ({}));
+    const inf = (md && md.info) || {};
+    let text = '';
+    for (let p = 1; p <= Math.min(3, doc.numPages) && text.length < 4000; p++) {
+      const tc = await (await doc.getPage(p)).getTextContent();
+      text += tc.items.map(i => i.str).join(' ').replace(/\s+/g, ' ') + '\n';
+    }
+    const pages = doc.numPages; doc.destroy();
+    return {title: inf.Title, author: inf.Author, pages, text: text.slice(0, 4000)};
+  }
+  if (['docx', 'pptx', 'xlsx'].includes(ext)) {
+    await loadScript(LIBS.zip);
+    const z = await window.JSZip.loadAsync(file);
+    const read = async n => { const f = z.file(n); return f ? f.async('string') : ''; };
+    const core = await read('docProps/core.xml');
+    const tag = t => decodeXml((core.match(new RegExp('<' + t + '[^>]*>([^<]*)</' + t + '>')) || [])[1]);
+    let text = '';
+    if (ext === 'docx') text = ((await read('word/document.xml')).match(/<w:t[^>]*>[^<]*<\/w:t>|<\/w:p>/g) || []).map(x => x === '</w:p>' ? '\n' : decodeXml(x.replace(/<[^>]+>/g, ''))).join('');
+    if (ext === 'pptx') for (let i = 1; i <= 3; i++) text += ((await read(`ppt/slides/slide${i}.xml`)).match(/<a:t>[^<]*<\/a:t>/g) || []).map(x => decodeXml(x.replace(/<[^>]+>/g, ''))).join(' ') + '\n';
+    const app = await read('docProps/app.xml');
+    const slides = +((app.match(/<Slides>(\d+)<\/Slides>/) || [])[1] || 0), pgs = +((app.match(/<Pages>(\d+)<\/Pages>/) || [])[1] || 0);
+    return {title: tag('dc:title'), author: tag('dc:creator'), pages: slides || pgs || 0, text: text.replace(/[ \t]+/g, ' ').slice(0, 4000)};
+  }
+  if (['txt', 'md', 'csv'].includes(ext)) return {text: (await file.slice(0, 6000).text()).slice(0, 4000)};
+  return {};
+}
+
+let samplePromise = null;
+function getSample() {
+  if (!samplePromise) samplePromise = (window.claude && typeof claude.use === 'function') ? claude.use('sample').catch(() => null) : Promise.resolve(null);
+  return samplePromise;
+}
+let extractToken = 0, lastPages = 0;
+function setExtract(msg, busy) { const el = $('#extractStatus'); el.textContent = msg; el.classList.toggle('busy', !!busy); }
+function fillField(name, val) {
+  const el = $('#itemForm').elements[name];
+  if (!el || el.dataset.touched || val == null || val === '') return false;
+  if (el.tagName === 'SELECT') { if (![...el.options].some(o => o.value === val)) return false; }
+  else if (el.value && !el.dataset.auto) return false;
+  el.value = val; el.dataset.auto = '1'; return true;
+}
+function applyGuess(g) {
+  if (!g || typeof g !== 'object') return 0;
+  let n = 0;
+  if (fillField('title', goodTitle(g.title))) n++;
+  if (fillField('author', String(g.author || '').slice(0, 80))) n++;
+  if (g.type && TYPE[g.type] && fillField('type', g.type)) n++;
+  if (fillField('week', String(g.week || '').slice(0, 40))) n++;
+  if (Array.isArray(g.tags) && g.tags.length && fillField('tags', g.tags.slice(0, 5).map(t => String(t).toLowerCase()).join(', '))) n++;
+  if (g.courseCode) {
+    const code = String(g.courseCode).replace(/\s+/g, '').toUpperCase();
+    const c = Store.courses.find(x => (x.code || '').replace(/\s+/g, '').toUpperCase() === code);
+    if (c && fillField('courseId', c.id)) n++;
+  }
+  return n;
+}
+function guessPrompt(source) {
+  const courses = sortedCourses().slice(0, 80).map(c => `${c.code || ''} ${c.name || ''}`.trim()).join('; ');
+  return `You help a university student file study materials on a digital bookshelf. From the information below, work out the material's details.
+
+${source}
+
+The student's courses: ${courses || 'none yet'}.
+
+Reply with only a JSON object, no other text:
+{"title": "", "author": "", "type": "", "week": "", "courseCode": "", "tags": []}
+
+Rules:
+- title: the real title of the book, notes or paper as a reader would name it (for lecture notes, the lecture or topic title). Not the file name unless nothing better exists.
+- author: the book's author(s), or the lecturer's name for notes, outlines and assignments. Empty if not stated.
+- type: one of "notes" (lecture notes or slides), "textbook" (a book or eTextbook), "outline" (course outline or study guide), "paper" (past exam or test paper), "assignment" (assignment, tutorial or project brief), "other".
+- week: a short label such as "Week 3", "Lecture 5" or "Chapter 2" if stated, else empty.
+- courseCode: a code from the student's course list if the material clearly belongs to one, else empty.
+- tags: up to 4 short lowercase keywords about the subject.
+- Leave anything you cannot tell as an empty string. Do not invent names.`;
+}
+async function extractFile(file) {
+  const tok = ++extractToken; lastPages = 0;
+  setExtract(`Reading \u201c${file.name}\u201d\u2026`, true);
+  let info = {};
+  try { info = await readFileInfo(file); } catch (e) { info = {}; }
+  if (tok !== extractToken) return;
+  lastPages = info.pages || 0;
+  let n = 0;
+  if (fillField('title', goodTitle(info.title))) n++;
+  if (fillField('author', info.author)) n++;
+  const sample = await getSample();
+  if (tok !== extractToken) return;
+  if (!sample) {
+    setExtract(n ? 'Filled in from the file\u2019s details. Check them and edit anything that\u2019s off.' : 'This file has no built-in title or author. Fill in the details below.');
+    return;
+  }
+  setExtract('Finding the title, author and topic\u2026', true);
+  const src = `File name: ${file.name}
+Built-in title: ${info.title || '(none)'}
+Built-in author: ${info.author || '(none)'}
+${info.pages ? 'Pages or slides: ' + info.pages + '\n' : ''}Opening text (between the markers):
+<<<
+${(info.text || '(no readable text)').slice(0, 3500)}
+>>>`;
+  try {
+    const g = await sample.json(guessPrompt(src), {modelTier: 'quick'});
+    if (tok !== extractToken) return;
+    n += applyGuess(g);
+    setExtract(n ? 'Details filled in from the file. Check them and edit anything that\u2019s off.' : 'Couldn\u2019t find a title or author in this file. Fill in the details below.');
+  } catch (e) {
+    if (tok !== extractToken) return;
+    setExtract(n ? 'Filled in from the file\u2019s details. Check them and edit anything that\u2019s off.'
+      : e && e.code === 'rate_limited' ? 'Too many files read in a row. Wait a moment, or fill in the details below.'
+      : 'Couldn\u2019t read details from this file. Fill them in below.');
+  }
+}
+async function extractLink(url) {
+  if (!/^https?:\/\/\S+\.\S+/i.test(url)) return;
+  const tok = ++extractToken;
+  const sample = await getSample();
+  if (!sample || tok !== extractToken) return;
+  setExtract('Guessing details from the web address\u2026', true);
+  try {
+    const g = await sample.json(guessPrompt(`Web link: ${url}
+Only the address is available, not the page itself. Infer what you reasonably can from it (for example a book title or publisher in the path).`), {modelTier: 'quick'});
+    if (tok !== extractToken) return;
+    const n = applyGuess(g);
+    setExtract(n ? 'Guessed from the web address only. Check the details and edit them.' : '');
+  } catch (e) { if (tok === extractToken) setExtract(''); }
+}
+
+/* ---------- profile ---------- */
+function initials(name) { return (String(name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('') || '+').toUpperCase(); }
+function paintAvatar(el, photo, name) {
+  el.innerHTML = photo && /^data:image\/(jpeg|png|webp);base64,/.test(photo) ? `<img src="${photo}" alt="">` : `<span>${esc(initials(name))}</span>`;
+}
+let pfPhoto = null;
+function openProfile() {
+  const pr = Store.profile || {}, f = $('#profileForm');
+  f.reset(); $('#pfErr').textContent = '';
+  f.elements.name.value = pr.name || ''; f.elements.programme.value = pr.programme || '';
+  pfPhoto = pr.photo || null; paintAvatar($('#pfPreview'), pfPhoto, pr.name);
+  $('#pfRemove').hidden = !pfPhoto;
+  $('#profileDlg').showModal();
+}
+function shrinkImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const S = 320, c = document.createElement('canvas'); c.width = c.height = S;
+      const m = Math.min(img.naturalWidth, img.naturalHeight);
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, S, S);
+      ctx.drawImage(img, (img.naturalWidth - m) / 2, (img.naturalHeight - m) / 2, m, m, 0, 0, S, S);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('bad image')); };
+    img.src = url;
+  });
+}
+$('#avatarBtn').addEventListener('click', () => { if (Store.ready) openProfile(); });
+$('#pfFile').addEventListener('change', async e => {
+  const file = e.target.files[0]; if (!file) return;
+  $('#pfErr').textContent = '';
+  try { pfPhoto = await shrinkImage(file); paintAvatar($('#pfPreview'), pfPhoto, ''); $('#pfRemove').hidden = false; }
+  catch (x) { $('#pfErr').textContent = 'That picture couldn\u2019t be opened. Choose a JPG, PNG or WebP image.'; }
+  e.target.value = '';
+});
+$('#pfRemove').addEventListener('click', () => { pfPhoto = null; paintAvatar($('#pfPreview'), null, $('#profileForm').elements.name.value); $('#pfRemove').hidden = true; });
+$('#profileForm').addEventListener('input', e => { if (e.target.name === 'name' && !pfPhoto) paintAvatar($('#pfPreview'), null, e.target.value); });
+$('#profileForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, btn = $('#pfSave'); btn.disabled = true;
+  try {
+    await Store.saveProfile({name: f.elements.name.value.trim(), programme: f.elements.programme.value.trim(), photo: pfPhoto || '', updatedAt: Date.now()});
+    $('#profileDlg').close(); toast('Profile saved');
+  } catch (x) {}
+  btn.disabled = false;
+});
+
+/* ---------- confirm ---------- */
+function confirmBox(title, text) {
+  return new Promise(res => {
+    const d = $('#confirmDlg'); $('#confirmTitle').textContent = title; $('#confirmText').textContent = text;
+    d.returnValue = ''; d.showModal();
+    d.addEventListener('close', () => res(d.returnValue === 'yes'), {once: true});
+  });
+}
+
+/* ---------- events ---------- */
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+$('#addCourseBtn').addEventListener('click', () => openCourseDlg());
+$('#addItemBtn').addEventListener('click', () => openItemDlg());
+let qTimer; $('#q').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => { ui.q = e.target.value.trim(); render(); }, 120); });
+$('#sort').addEventListener('change', e => { ui.sort = e.target.value; render(); });
+document.querySelectorAll('.tools .seg button').forEach(b => b.addEventListener('click', () => {
+  ui.view = b.dataset.view; document.querySelectorAll('.tools .seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); render();
+}));
+$('#chips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  if (b.hasAttribute('data-starred')) { ui.starred = !ui.starred; ui.type = 'all'; }
+  else { ui.type = b.dataset.type; ui.starred = false; }
+  render();
+});
+document.addEventListener('click', async e => {
+  const t = e.target.closest('[data-open],[data-add-to],[data-edit-course],[data-act],[data-mark]');
+  if (!t) return;
+  if (t.dataset.mark) { const i = Store.items.find(x => x.id === t.dataset.mark); i && touch(i); return; }
+  if (t.dataset.open) return openDrawer(t.dataset.open);
+  if (t.dataset.addTo) return openItemDlg({courseId: t.dataset.addTo});
+  if (t.dataset.editCourse) return openCourseDlg(course(t.dataset.editCourse));
+  const act = t.dataset.act, i = Store.items.find(x => x.id === ui.openId);
+  if (act === 'new-course') return openCourseDlg();
+  if (act === 'close-drawer') return closeDrawer();
+  if (act === 'clear-sample') return clearSample();
+  if (!i) return;
+  if (act === 'read') return openReader(i);
+  if (act === 'save') return saveCopy(i);
+  if (act === 'edit') return openItemDlg({item: i});
+  if (act === 'star') { try { await Store.put('items', Object.assign({}, i, {starred: !i.starred})); } catch (x) {} return; }
+  if (act === 'delete') {
+    if (!(await confirmBox(`Delete \u201c${i.title}\u201d?`, i.source && i.source.kind === 'file' ? 'The file is removed from your shelf. This can\u2019t be undone.' : 'The link is removed from your shelf.'))) return;
+    try { await Store.removeFile(i.source); await Store.remove('items', i.id); closeDrawer(); toast('Deleted'); } catch (x) {}
+  }
+});
+$('#scrim').addEventListener('click', closeDrawer);
+$('#rClose').addEventListener('click', closeReader);
+$('#rSave').addEventListener('click', () => readerItem && saveCopy(readerItem));
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if ($('#reader').classList.contains('on')) closeReader();
+  else if (ui.openId && !document.querySelector('dialog[open]')) closeDrawer();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !e.target.closest('input,textarea,select') && !document.querySelector('dialog[open]')) { e.preventDefault(); $('#q').focus(); }
+});
+/* drop files straight onto a course shelf */
+$('#main').addEventListener('dragover', e => { const r = e.target.closest('[data-drop]'); if (!r || Store.readOnly) return; e.preventDefault(); r.classList.add('drop'); });
+$('#main').addEventListener('dragleave', e => { const r = e.target.closest('[data-drop]'); r && r.classList.remove('drop'); });
+$('#main').addEventListener('drop', e => {
+  const r = e.target.closest('[data-drop]'); if (!r || Store.readOnly) return;
+  e.preventDefault(); r.classList.remove('drop');
+  const fs = [...(e.dataTransfer.files || [])]; if (fs.length) openItemDlg({courseId: r.dataset.drop, files: fs});
+});
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => e.preventDefault());
+
+Store.onChange = render;
+render();
+Store.init();
+})();
+</script>
+</body>
+</html>
